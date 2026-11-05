@@ -1,0 +1,20 @@
+{
+  "name": "admos-tools",
+  "interface": {
+    "displayName": "ADMOS tools"
+  },
+  "plugins": [
+    {
+      "name": "admos-reports",
+      "source": {
+        "source": "local",
+        "path": "./plugins/admos-reports"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,11 +1,15 @@
 {
   "name": "admos-reports",
   "displayName": "ADMOS Reports",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "license": "SEE LICENSE IN LICENSE",
-  "description": "Publish and share hosted ADMOS reports from Claude Code (one HTML file, explicit human approval).",
+  "description": "Publish and share hosted ADMOS reports from an AI coding agent (one HTML file, explicit human approval).",
   "author": {
     "name": "ADMOS"
   },
-  "keywords": ["admos", "reports", "publisher"]
+  "keywords": [
+    "admos",
+    "reports",
+    "publisher"
+  ]
 }

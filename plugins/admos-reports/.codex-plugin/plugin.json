@@ -1,0 +1,21 @@
+{
+  "name": "admos-reports",
+  "version": "0.2.0",
+  "description": "Publish and share hosted ADMOS reports from an AI coding agent (one HTML file, explicit human approval).",
+  "author": {
+    "name": "ADMOS"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "keywords": [
+    "admos",
+    "reports",
+    "publisher"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ADMOS Reports",
+    "shortDescription": "Publish hosted ADMOS reports for publishers",
+    "developerName": "ADMOS",
+    "category": "Productivity"
+  }
+}

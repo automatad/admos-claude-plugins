@@ -1,0 +1,16 @@
+{
+  "name": "admos-tools",
+  "owner": {
+    "name": "ADMOS"
+  },
+  "metadata": {
+    "description": "ADMOS operations plugins for AI coding agents (Claude Code, Cursor, Codex). Currently: publish an HTML report to the ADMOS reports host and share it with a publisher, with explicit human approval."
+  },
+  "plugins": [
+    {
+      "name": "admos-reports",
+      "source": "plugins/admos-reports",
+      "description": "Bundle a report into one self-contained HTML file, upload it to the ADMOS reports host and share it with a publisher. Publishing needs an explicit yes from the operator, and the client should also ask before the approve call."
+    }
+  ]
+}

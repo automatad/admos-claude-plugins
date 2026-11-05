@@ -1,7 +1,6 @@
 ---
 name: publish-report
-description: Publish an HTML report (dashboard, analysis, deck-like page) to the ADMOS reports host so a publisher can view it. Bundles it into one self-contained HTML file, confirms publisher and site by name, uploads it, shows size/hash/warnings, and only after the operator's explicit yes approves it and returns a share link. Use when the user says "host it", "publish this report", "share this with the publisher", "put this online for <publisher>", "send them a link to this report", or asks to revoke or re-publish a hosted report.
-when_to_use: The user has built or pointed at an HTML or Vite/React report and wants a link for a publisher or site. Also when they ask for the status, a new version or the revocation of a report that was already hosted.
+description: Publish an HTML report (dashboard, analysis, deck-like page) to the ADMOS reports host so a publisher can view it. Bundles it into one self-contained HTML file, confirms publisher and site by name, uploads it, shows size/hash/warnings, and only after the operator's explicit yes approves it and returns a share link. Use when the user has built or pointed at an HTML or Vite/React report and says "host it", "publish this report", "share this with the publisher", "put this online for <publisher>", "send them a link to this report", or asks for the status, a new version or the revocation of a hosted report.
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/check-report.sh *)
 ---
@@ -17,9 +16,9 @@ next to this file.
 ## Rules that never bend
 
 1. **Never read the built report into the conversation.** No `cat`, `head`,
-   `sed`, `grep` that prints lines, and no Read tool on the built file. Inspect it
-   only with `${CLAUDE_SKILL_DIR}/scripts/check-report.sh` (prints counts and
-   hostnames only), or if that helper misbehaves with `wc -c <file` and
+   `sed`, `grep` that prints lines, and no file-reading tool on the built file.
+   Inspect it only with `scripts/check-report.sh` from this skill's folder (prints
+   counts and hostnames only), or if that helper misbehaves with `wc -c <file` and
    `shasum -a 256 <file` (size and digest only). The file can hold publisher data
    the conversation must not see.
 2. **Report content never goes into an MCP call.** `publish_report` takes
@@ -37,14 +36,22 @@ next to this file.
    operator what to do (below). Do not fall back to a dashboard token, a personal
    API token, direct HTTP calls to ADMOS, or a different upload route.
 
-Tool names assume the ADMOS MCP server is registered as `admos`:
-`mcp__admos__publish_report`, `mcp__admos__get_report_status`,
-`mcp__admos__approve_report`, `mcp__admos__revoke_report`, plus the lookup tools
-`mcp__admos__search_platform`, `mcp__admos__manage_domains`,
-`mcp__admos__get_domain_details`. If these are not available (different server
-name, not connected, not staff), stop. Connecting: `/mcp` -> `admos` ->
-Authenticate (or `claude mcp login admos` in a shell), signed in as an ADMOS
-staff user.
+The tools come from the ADMOS MCP server, registered in your client under the name
+`admos`: `publish_report`, `get_report_status`, `approve_report` and
+`revoke_report`, plus the lookup tools `search_platform`, `manage_domains` and
+`get_domain_details`. Some clients show them with a prefix, for example
+`mcp__admos__publish_report` in Claude Code. If these tools are not available
+(different server name, not connected, not staff), stop and tell the operator to
+connect the `admos` server and sign in with their ADMOS staff account:
+
+- Claude Code: `/mcp` -> `admos` -> Authenticate (or `claude mcp login admos`).
+- Cursor: Settings -> MCP (or Customize -> MCPs) -> `admos` -> Connect.
+- Codex: `codex mcp login admos`.
+- Other clients: the client's own MCP sign-in for the `admos` server.
+
+`scripts/check-report.sh` and `reference/troubleshooting.md` are paths relative to
+this skill's folder (in Claude Code the folder is `${CLAUDE_SKILL_DIR}`). Run the
+script by its full path in that folder.
 
 ## Step 1 - Bundle into ONE self-contained HTML file
 
@@ -139,7 +146,7 @@ or `<html` (a BOM, whitespace and comments before it are fine).
 ### Verify the bundle
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/check-report.sh dist-report/index.html
+<this skill's folder>/scripts/check-report.sh dist-report/index.html
 ```
 
 It prints size, sha256, whether the server would reject the file, and the
@@ -156,11 +163,10 @@ Never create a draft before the operator has confirmed who it is for.
 
 1. Take the publisher and site names the operator gave. If they gave none, ask.
 2. Look them up with the ADMOS tools (they return ids; you must use those):
-   - `mcp__admos__search_platform` with `query: "<name>"`,
+   - `search_platform` with `query: "<name>"`,
      `entity_types: ["publisher", "domain"]`, `limit: 10`.
-   - `mcp__admos__manage_domains` with `action: "list"` and `publisher_id` to list
-     the publisher's sites; `mcp__admos__get_domain_details` with `domain_id` to
-     inspect one site.
+   - `manage_domains` with `action: "list"` and `publisher_id` to list the
+     publisher's sites; `get_domain_details` with `domain_id` to inspect one site.
 3. If there are several candidates or names that look alike (for example
    "Acme Media" and "Acme Media Group"), list them all and ask which one. Do not
    pick one yourself.
@@ -177,7 +183,7 @@ Never create a draft before the operator has confirmed who it is for.
 
 ## Step 3 - Create the draft and upload
 
-1. Call `mcp__admos__publish_report` with `publisher_id`, `site_id`, `title`,
+1. Call `publish_report` with `publisher_id`, `site_id`, `title`,
    `expires_in_days` (omit for 90). To add a new version of a report you already
    created, also pass `report_id` (publisher and site must match). No field takes
    file content.
@@ -190,8 +196,8 @@ Never create a draft before the operator has confirmed who it is for.
      `check-report.sh --max-bytes <upload.max_bytes>` and shrink the file.
    - The pass expires at `upload.pass_expires_at` (about 10 minutes). Upload now.
 3. Upload with exactly this shape (the contract's reference command). Put the pass
-   and URL in shell variables inside the one command; they live only for that
-   command because each Bash call is a fresh shell:
+   and URL in shell variables inside the one command, so they live only for that
+   command; do not `export` them or write them to a file:
 
    ```bash
    PASS='<upload.pass>'; UPLOAD_URL='<upload.url>'
@@ -200,8 +206,8 @@ Never create a draft before the operator has confirmed who it is for.
      "$UPLOAD_URL"
    ```
 
-   Claude Code will ask permission to run this command (it is deliberately not
-   pre-approved); the operator sees the upload URL there.
+   Most clients ask permission before running a shell command; do not pre-approve
+   this one. The operator sees the upload URL there.
 
    `-T <file>` streams a regular file with a Content-Length; do not pipe the file
    or use `-T -` (chunked uploads get 411). On failure curl exits 22 and prints the
@@ -255,7 +261,7 @@ Present, in this order:
 
 ## Step 5 - Approve and share (only on an explicit yes)
 
-1. Call `mcp__admos__get_report_status` with `report_id`. Show: publisher name,
+1. Call `get_report_status` with `report_id`. Show: publisher name,
    site name, title, latest version and its status (`uploaded`), sha256, size,
    `required_acknowledgements`, current `published_version` (if any) and
    `expires_at`.
@@ -267,16 +273,18 @@ Present, in this order:
    > `external_resource`, `dynamic_code`. (yes / no)
 
 3. Only on a clear "yes", tell them what happens next, then call
-   `mcp__admos__approve_report` with `report_id`, `version`, `sha256`,
+   `approve_report` with `report_id`, `version`, `sha256`,
    `publisher_name`, `site_name` and `acknowledged_warnings`, all **exactly as
    shown to the operator**: `acknowledged_warnings` is the list from
    `required_acknowledgements`, no more and no fewer.
 
-   Tell them first: "Claude Code will now show a permission prompt for
-   `approve_report`. Your organisation requires it for this tool, so it cannot be
-   switched to 'always allow'. Check that the publisher and site names and the
-   sha256 in the prompt match what I showed you, then accept. Declining cancels
-   the publish." If they decline, stop; do not retry.
+   Tell them first: "Your client should now ask you to confirm the
+   `approve_report` call. Check that the publisher and site names and the sha256
+   in that prompt match what I showed you, then accept. Declining cancels the
+   publish." If they decline, stop; do not retry. If the client runs the call
+   without asking, say so afterwards: the client is not set up to confirm
+   approvals (see the plugin README), and the operator should fix that before the
+   next publish.
 4. On success the result is `{status: "published", share_link, version, expires_at}`.
    Show the share link and the expiry. Say that the link can be sent to users of
    that publisher; they sign in with their own ADMOS account (no separate login,
@@ -292,9 +300,9 @@ Present, in this order:
 Only when the operator explicitly asks to take a report down. Ask for a short
 reason, confirm which report and publisher ("Revoke 'Floors review, Q3' for Acme
 Media? The link stops working immediately and the stored files are deleted; to
-bring it back you must upload again. yes / no"), then call
-`mcp__admos__revoke_report` with `report_id` and `reason`. A permission prompt
-appears here too. To check what is live, `get_report_status`.
+bring it back you must upload again. yes / no"), then call `revoke_report` with
+`report_id` and `reason`. The client should ask for confirmation here too. To
+check what is live, `get_report_status`.
 
 ## Re-publishing and status
 
