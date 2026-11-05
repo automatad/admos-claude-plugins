@@ -1,4 +1,19 @@
-Copyright (c) 2026 Automatad. All rights reserved.
+Automatad Internal Use License
 
-This repository is published so that ADMOS staff can install its Claude Code plugins.
-No license is granted to copy, modify or redistribute its contents.
+Copyright (c) 2026 Automatad Inc. All rights reserved.
+
+This repository is publicly accessible for convenience only. Public access does not
+grant any license.
+
+1. Permitted use. Employees and contractors of Automatad Inc. ("Authorized Users")
+   may download, install and use the contents of this repository solely to perform
+   work for Automatad Inc.
+2. Restrictions. No other person is granted any right to use, copy, modify, publish,
+   distribute, sublicense or sell the contents of this repository, or to create
+   derivative works from it. Authorized Users may not do so either, except as needed
+   for internal use under section 1, and may not share it outside Automatad Inc.
+3. Termination. Permission under section 1 ends automatically when a person stops
+   being an Authorized User or breaches these terms.
+4. No warranty. The contents are provided "as is", without warranty of any kind. In no
+   event shall Automatad Inc. be liable for any claim or damages arising from
+   their use.

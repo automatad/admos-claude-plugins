@@ -8,6 +8,10 @@ A Claude Code plugin marketplace (`admos-tools`) for ADMOS operations.
 
 These plugins only work with an **ADMOS staff account**. Without one, they can do nothing.
 
+The repository is public only so staff can install without a GitHub login. It is **not open
+source**: only Automatad Inc. employees and contractors may use it, for Automatad work (see
+[LICENSE](LICENSE)).
+
 ## Install
 
 You need Claude Code, git, Node/npm and curl.
