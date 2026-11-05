@@ -1,0 +1,10 @@
+{
+  "name": "admos-reports",
+  "displayName": "ADMOS Reports",
+  "version": "0.1.1",
+  "description": "Publish and share hosted ADMOS reports from Claude Code (one HTML file, explicit human approval).",
+  "author": {
+    "name": "ADMOS"
+  },
+  "keywords": ["admos", "reports", "publisher"]
+}

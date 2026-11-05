@@ -1,0 +1,14 @@
+{
+  "name": "admos-tools",
+  "description": "Claude Code plugins for ADMOS operations. Currently: publish an HTML report to the ADMOS reports host and share it with a publisher, with explicit human approval.",
+  "owner": {
+    "name": "ADMOS"
+  },
+  "plugins": [
+    {
+      "name": "admos-reports",
+      "source": "./plugins/admos-reports",
+      "description": "Bundle a report into one self-contained HTML file, upload it to the ADMOS reports host and share it with a publisher. Publishing needs an explicit yes from the operator and a permission prompt."
+    }
+  ]
+}
