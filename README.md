@@ -60,10 +60,10 @@ connection fails with a redirect URI error.
 ## Codex
 
 ```sh
-codex plugin marketplace add automatad/admos-claude-plugins
-codex plugin add admos-reports@admos-tools
 codex mcp add admos --url <ADMOS MCP URL>
 codex mcp login admos
+codex plugin marketplace add automatad/admos-claude-plugins
+codex plugin add admos-reports@admos-tools
 ```
 
 You can also install `admos-reports` from the plugin browser (`/plugins` in Codex CLI, or

@@ -1,7 +1,7 @@
 {
   "name": "admos-reports",
   "displayName": "ADMOS Reports",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "SEE LICENSE IN LICENSE",
   "description": "Publish and share hosted ADMOS reports from an AI coding agent (one HTML file, explicit human approval).",
   "author": {

@@ -1,6 +1,6 @@
 {
   "name": "admos-reports",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Publish and share hosted ADMOS reports from an AI coding agent (one HTML file, explicit human approval).",
   "author": {
     "name": "ADMOS"

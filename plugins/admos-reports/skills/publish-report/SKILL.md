@@ -146,7 +146,9 @@ or `<html` (a BOM, whitespace and comments before it are fine).
 ### Verify the bundle
 
 ```bash
-<this skill's folder>/scripts/check-report.sh dist-report/index.html
+# Claude Code (matches the skill's pre-approval, so no prompt):
+${CLAUDE_SKILL_DIR}/scripts/check-report.sh dist-report/index.html
+# Other clients: the same script by its absolute path in this skill's folder.
 ```
 
 It prints size, sha256, whether the server would reject the file, and the
