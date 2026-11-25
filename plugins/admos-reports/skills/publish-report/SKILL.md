@@ -1,6 +1,6 @@
 ---
 name: publish-report
-description: Publish an HTML report (dashboard, analysis, deck-like page) to the ADMOS reports host so a publisher can view it. Bundles it into one self-contained HTML file, confirms publisher and site by name, uploads it, shows size/hash/warnings, and only after the operator's explicit yes approves it and returns a share link. Use when the user has built or pointed at an HTML or Vite/React report and says "host it", "publish this report", "share this with the publisher", "put this online for <publisher>", "send them a link to this report", or asks for the status, a new version or the revocation of a hosted report.
+description: Publish an HTML report (dashboard, analysis, deck-like page) to the ADMOS reports host so a publisher can view it, either once (static) or refreshed on a schedule from ADMOS analytics or the publisher's Ad Manager data (dynamic). Bundles it into one self-contained HTML file, confirms publisher and site by name, uploads it, shows size/hash/warnings, and only after the operator's explicit yes approves it and returns a share link. Use when the user has built or pointed at an HTML or Vite/React report and says "host it", "publish this report", "share this with the publisher", "put this online for <publisher>", "send them a link to this report", "refresh it every day/week", "make it a scheduled/dynamic report", or asks for the status, schedule, a new version or the revocation of a hosted report.
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/check-report.sh *)
 ---
@@ -9,7 +9,8 @@ allowed-tools:
 
 You take a report from "built locally" to "a publisher's users can open it", in
 four stages: **bundle -> confirm who it is for -> upload and inspect -> approve
-and share**. Interfaces: sections 3 and 8 of the ADMOS reports contract
+and share**. A report can also be **dynamic**: ADMOS re-renders it on a schedule
+from fresh data (step 2b and `reference/dynamic-reports.md`). Interfaces: sections 3 and 8 of the ADMOS reports contract
 (internal). Problems at any stage: `reference/troubleshooting.md`
 next to this file.
 
@@ -38,7 +39,9 @@ next to this file.
 
 The tools come from the ADMOS MCP server, registered in your client under the name
 `admos`: `publish_report`, `get_report_status`, `approve_report` and
-`revoke_report`, plus the lookup tools `search_platform`, `manage_domains` and
+`revoke_report`; for dynamic reports `check_report_query`, `create_dynamic_report`,
+`update_dynamic_report`, `control_dynamic_report` and `get_dynamic_report`; plus the
+lookup tools `search_platform`, `manage_domains` and
 `get_domain_details`. Some clients show them with a prefix, for example
 `mcp__admos__publish_report` in Claude Code. If these tools are not available
 (different server name, not connected, not staff), stop and tell the operator to
@@ -49,8 +52,8 @@ connect the `admos` server and sign in with their ADMOS staff account:
 - Codex: `codex mcp login admos`.
 - Other clients: the client's own MCP sign-in for the `admos` server.
 
-`scripts/check-report.sh` and `reference/troubleshooting.md` are paths relative to
-this skill's folder (in Claude Code the folder is `${CLAUDE_SKILL_DIR}`). Run the
+`scripts/check-report.sh`, `reference/troubleshooting.md` and
+`reference/dynamic-reports.md` are paths relative to this skill's folder (in Claude Code the folder is `${CLAUDE_SKILL_DIR}`). Run the
 script by its full path in that folder.
 
 ## Step 1 - Bundle into ONE self-contained HTML file
@@ -183,6 +186,23 @@ Never create a draft before the operator has confirmed who it is for.
    Ask for the title (no personal or customer data in it) and the expiry if the
    operator has not said. Wait for "yes".
 
+## Step 2b - Static or dynamic?
+
+Once publisher and site are confirmed, ask: **"Is this a one-time report, or should it
+refresh on a schedule?"** Offer dynamic only when every number in the report comes from
+ADMOS analytics (the aggregate tables or the raw event archive) or the publisher's own
+Ad Manager network. If anything else feeds it, say that it has to stay static, and why.
+
+- **Static** (the default): continue with step 3.
+- **Dynamic**: follow `reference/dynamic-reports.md`. In short:
+  1. Build data specs with `check_report_query`.
+  2. Write Python render code, tested locally on made-up rows.
+  3. Confirm the schedule (every 12 hours at most often) and call
+     `create_dynamic_report`.
+  4. ADMOS renders and holds version 1. Continue at step 4 below with that version and
+     approve it only on an explicit yes. Later versions publish on their own while the
+     code and specs are unchanged and the scan is clean.
+
 ## Step 3 - Create the draft and upload
 
 1. Call `publish_report` with `publisher_id`, `site_id`, `title`,
@@ -313,3 +333,6 @@ check what is live, `get_report_status`.
   until the new one is approved.
 - "Is it live?": `get_report_status` with `report_id` and show status,
   `published_version`, `expires_at` and the share link.
+- Dynamic report: "when does it run next?", "pause it", "change the schedule" or "why
+  wasn't it published?": `get_dynamic_report`, `control_dynamic_report` and
+  `update_dynamic_report` (see `reference/dynamic-reports.md`).
