@@ -124,7 +124,9 @@ The first run is usually ready within 2 to 5 minutes. Poll `get_dynamic_report` 
 
 - `held`: version 1 is uploaded and waits for approval. Continue with steps 4 and 5 of
   `SKILL.md`: `get_report_status`, size, hash and warnings, the preview link, and an
-  explicit yes before `approve_report`. Approving starts the schedule.
+  explicit yes before `approve_report`. Approving starts the schedule. The operator can
+  instead approve in the ADMOS UI (report page → *Review and approve*); if they prefer
+  that, give them the report link and stop. Don't call `approve_report` as well.
 - `failed`: show `error_code` and `error_detail`. For example, `render_failed` and
   `render_no_output` come with the Python traceback, and `iceberg_query_failed`,
   `iceberg_busy` or `gam_not_configured` with the source error. Fix
