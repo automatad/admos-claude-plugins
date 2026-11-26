@@ -64,8 +64,9 @@ Do this for each dataset the report needs (at most 8):
     "window": {"unit": "days", "count": 7}}
    ```
 
-Windows are relative to each run, for example "the last 7 days". Aggregates keep 120
-days and cover the whole window: daily rollups plus the recent hourly rows. Grouping or
+Windows are relative to each run, for example "the last 7 days". Aggregate windows cover
+at most 119 complete days (the 120-day retention is rolling), daily rollups plus the
+recent hourly rows; longer questions go to Iceberg. Grouping or
 filtering by `hour` works only within 15 days; beyond that `check_report_query` sends the
 question to Iceberg. Ad Manager windows are complete days in the network's own time zone.
 A dynamic report's expiry is fixed when it is created and is never extended.
