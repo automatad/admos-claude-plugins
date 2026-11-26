@@ -6,7 +6,7 @@ Codex, and the skill inside works in any agent that reads [Agent Skills](https:/
 
 | Plugin | What it does |
 |---|---|
-| `admos-reports` | Publishes an HTML report (dashboard, analysis, deck-like page) to the ADMOS reports host so a publisher's users can open it. It bundles the report into one self-contained HTML file, confirms the publisher and site by name, uploads the file and shows its size, hash and warnings. Only after the operator says yes does it approve the report and return a share link. |
+| `admos-reports` | Publishes an HTML report (dashboard, analysis, deck-like page) to the ADMOS reports host so a publisher's users can open it. It bundles the report into one self-contained HTML file, confirms the publisher and site by name, uploads the file and shows its size, hash and warnings. Only after the operator says yes does it approve the report and return a share link. A report can also be **dynamic**: ADMOS re-renders it on a schedule from ADMOS analytics or the publisher's Ad Manager data and publishes new versions on its own. |
 
 These plugins only work with an **ADMOS staff account**. Without one, they can do nothing.
 
@@ -82,11 +82,81 @@ Plugins in the Codex app). Alternatively copy
 
 Ask the agent to "publish this report for <publisher>" in the folder that holds the report, or
 invoke the `publish-report` skill directly (`/admos-reports:publish-report` in Claude Code).
+After you confirm the publisher and site, the agent asks whether the report is **one-time
+(static)** or should **refresh on a schedule (dynamic)**.
+
+### Static reports (one-time)
+
+The report you built is uploaded once. You check the size, hash and warnings, open the
+preview, and approve it. To change it later, ask for a new version; the old one stays live
+until the new one is approved.
+
+### Dynamic reports (scheduled)
+
+Use a dynamic report when every number in it comes from:
+- **ADMOS analytics**: the aggregate tables, or, when they can't answer, the raw bid events
+  in the Iceberg archive; or
+- **the publisher's own Google Ad Manager network**.
+
+Anything else (pasted numbers, spreadsheets, other systems) stays static.
+
+**1. Ask for it.** For example:
+
+> Build a weekly revenue and eCPM report for Acme Media (acme.com): revenue by day from
+> ADMOS analytics and impressions by day from their Ad Manager, last 7 days. Refresh it
+> every Monday at 06:00 London time and keep it for 90 days.
+
+**2. The agent sets it up.**
+- It turns each question into a **data spec**. ADMOS decides whether the aggregates can
+  answer it or whether it has to run on the Iceberg archive, and says why.
+- It writes the **render code**: Python that turns the data into one HTML page with
+  embedded charts. The agent never sees the publisher's data; it tests the code on made-up
+  rows.
+- It shows you the plan (data, schedule, expiry) and waits for your yes.
+
+**3. ADMOS renders version 1 and holds it.** This takes a few minutes. ADMOS fetches the data
+as its own service account, limited to that site, and runs the code in an offline sandbox.
+
+**4. A person approves version 1**, either:
+- in **Claude Code**: the agent shows size, hash and warnings and asks for your yes; or
+- in the **ADMOS UI**: *Reports → the report → Review and approve*. Tick each finding,
+  then *Publish*.
+
+Both need the `report-approvers` permission. Approving starts the schedule.
+
+**5. Later versions publish on their own** while the render code and data specs are
+unchanged and the upload scan is clean. A version is **held** for a person instead when:
+- the code or specs changed since the approval;
+- the scan reports any warning; or
+- the report names another publisher or site.
+
+Held versions and failures email tech@mile.tech. A failed run is retried twice, ten minutes
+apart; the last published version stays live meanwhile.
+
+**Schedules:** every N minutes (5 to 720, on the multiples of N in UTC: every 10 minutes
+runs at :00, :10, ...), every 12 hours, daily, weekdays, weekly (pick the day) or monthly
+(pick the date); the calendar schedules run at a wall-clock time in any timezone. Each run
+publishes a new version, so pick the slowest schedule that keeps the report useful. A run
+never extends the report's expiry, and none is planned after it.
+
+**Managing a dynamic report.** In the agent:
+- "pause / resume the Acme weekly report";
+- "run it now";
+- "change it to daily at 07:00";
+- "why wasn't it published?".
+
+Or in the ADMOS UI, from the report's **Schedule** card: Pause, Resume, Run now, Edit
+schedule, Stop. The **Runs** table shows each run's outcome, row counts and errors, and the
+Reports list has a *Static / Dynamic* filter.
+
+A schedule change needs no new approval. Changing the code or the data does: a new first
+version is rendered and held. *Stop* is final; to start again, create a new report.
 
 ## Confirm approvals
 
 `approve_report` makes a report visible to a publisher's users, and `revoke_report` takes it
-down. The client must ask you before either call runs:
+down. (Approvers can also do both from the report's page in the ADMOS UI.) The client must
+ask you before either call runs:
 
 - **Claude Code:** managed settings put both tools in `permissions.ask` (your admin rolls this
   out). By hand, do not add them to an allow list.
