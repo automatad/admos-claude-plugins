@@ -133,9 +133,11 @@ unchanged and the upload scan is clean. A version is **held** for a person inste
 Held versions and failures email tech@mile.tech. A failed run is retried twice, ten minutes
 apart; the last published version stays live meanwhile.
 
-**Schedules:** every 12 hours (the fastest), daily, weekdays, weekly (pick the day) or
-monthly (pick the date), at a wall-clock time in any timezone. A run never extends the
-report's expiry, and none is planned after it.
+**Schedules:** every N minutes (5 to 720, on the multiples of N in UTC: every 10 minutes
+runs at :00, :10, ...), every 12 hours, daily, weekdays, weekly (pick the day) or monthly
+(pick the date); the calendar schedules run at a wall-clock time in any timezone. Each run
+publishes a new version, so pick the slowest schedule that keeps the report useful. A run
+never extends the report's expiry, and none is planned after it.
 
 **Managing a dynamic report.** In the agent:
 - "pause / resume the Acme weekly report";

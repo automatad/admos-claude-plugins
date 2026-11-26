@@ -110,12 +110,18 @@ for a yes:
 > held and tech@mile.tech is emailed. (yes / no)
 
 **Schedules.** `frequency` is one of:
-- `twice_daily`: every 12 hours from `time`. This is the fastest allowed.
+- `every_minutes`, with `interval_minutes` from 5 to 720: runs on the multiples of the
+  interval in UTC (every 10 minutes = :00, :10, ...). It takes no `time` or `timezone`.
+  This is the fastest allowed. A run starts up to 2 minutes late, and a run that takes
+  longer than the interval delays the next one. Use it only when the data really changes
+  that often: every run publishes a new version.
+- `twice_daily`: every 12 hours from `time`.
 - `daily` or `weekdays`.
 - `weekly`, with `weekday`: 0 = Monday.
 - `monthly`, with `month_day`: 1-31; short months use their last day.
 
-Each schedule also has `time` (`HH:MM`, wall clock) and `timezone` (IANA name).
+Every schedule except `every_minutes` also has `time` (`HH:MM`, wall clock) and
+`timezone` (IANA name).
 
 Then call `create_dynamic_report` with `publisher_id`, `site_id`, `title`,
 `render_code`, `specs`, `schedule` and optionally `expires_in_days`. The expiry is fixed

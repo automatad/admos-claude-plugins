@@ -197,7 +197,7 @@ Ad Manager network. If anything else feeds it, say that it has to stay static, a
 - **Dynamic**: follow `reference/dynamic-reports.md`. In short:
   1. Build data specs with `check_report_query`.
   2. Write Python render code, tested locally on made-up rows.
-  3. Confirm the schedule (every 12 hours at most often) and call
+  3. Confirm the schedule (every 5 minutes at most often) and call
      `create_dynamic_report`.
   4. ADMOS renders and holds version 1. Continue at step 4 below with that version and
      approve it only on an explicit yes. Later versions publish on their own while the
